@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Keyboard Activity Record</title>
+        <style>
+            body {
+                font-family: 'San Francisco', Helvetica, Arial, sans-serif;
+                margin: 0;
+                padding: 50px; 
+                display: flex;
+                justify-content: center;
+                align-items: flex-start;
+                height: calc(100vh - 100px); 
+                width: calc(100vw - 100px); 
+                box-sizing: border-box; 
+                overflow: hidden;
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+    
+            .container {
+                width: 100%;
+                height: 100%;
+                display: grid;
+                grid-template-rows: auto 1fr; 
+                gap: 20px;
+                overflow: hidden;
+            }
+
+            .log-area{
+                border-top: 1px solid #ccc;
+                padding: 10px;
+                overflow: auto;
+            }
+    
+            .input-area {
+                padding: 10px;
+                overflow: auto;
+                display: grid;
+                grid-template-rows: auto 1fr auto; 
+                gap: 10px; 
+                align-items: center; 
+            }
+    
+            #log {
+                width: 100%;
+                height: 100%;
+                overflow-y: auto;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+            }
+    
+            textarea {
+                height: 100%;
+                min-height: 300px;
+                width: 100%;
+                resize: vertical; 
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+            }
+    
+            input[type="text"]{
+                padding: 10px;
+                border-bottom: 1px solid #ccc;
+                border-top: 0;
+                border-left: 0;
+                border-right: 0;
+                width: 100%; 
+            }
+    
+            button {
+                padding: 10px 20px;
+            }
+    
+            #name, #inputBox, #submit, #download, #retry {
+                margin-bottom: 10px;
+            }
+    
+            .instructions, .name-input {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+    
+            h2, h4 {
+                margin: 5px 0; /
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="input-area">
+                <div class="name-input">
+                    <label for="name"><h2>Please input your nickname:</h2></label>
+                    <input type="text" id="name" placeholder="Your name here" />
+                </div>
+                <div class="content-input">
+                    <div class="instructions">
+                        <label for="inputBox"><h2>Please input your content:</h2></label>
+                        <button id="retry">Retry</button>
+                    </div>
+                    <textarea id="inputBox" placeholder="Type here"></textarea>
+                </div>
+                <div class="instructions">
+                    <h4 id="indicator">Typing rounds: </h4>
+                    <button id="submit">Submit</button>
+                </div>
+            </div>
+            <div class="log-area">
+                <div id="log"></div>
+            </div>
+            <button id="download">Download</button>
+        </div>
+
+    <script>
+        let allSessions = []; 
+        let currentSession = [];
+        let typingRounds = 0;
+
+        const inputBox = document.getElementById('inputBox');
+        const nameInput = document.getElementById('name');
+        const indicator = document.getElementById('indicator')
+
+        inputBox.addEventListener('keydown', function(event) {
+            const keyInfo = {
+                key: event.key,
+                type: 'keydown',
+                time: Date.now()
+            };
+
+            if (event.key === ' '){
+                keyInfo.key = 'space';
+            }
+
+            if (event.key === ','){
+                keyInfo.key = ',';
+            }
+
+            if (event.key === 'Tab') {
+                return;
+            }else{
+                currentSession.push(keyInfo);
+                updateLog();
+            }
+            // else if(event.key === 'Enter') {
+            //     inputBox.value = '';
+            //     allSessions.push({ 
+            //     sessionId: allSessions.length + 1, 
+            //     data: currentSession 
+            // });
+            //     currentSession = [];
+            //     typingRounds++;
+            //     updateIndicator();
+            //     updateLog(); 
+            // }
+            
+        });
+
+        inputBox.addEventListener('keyup', function(event) {
+            const keyInfo = {
+                key: event.key,
+                type: 'keyup',
+                time: Date.now()
+            };
+
+            if (event.key === ' '){
+                keyInfo.key = 'space';
+            }
+
+            if (event.key === ','){
+                keyInfo.key = ',';
+            }
+
+            // if (event.key === 'Enter' || event.key === 'Tab') {
+            //     return;
+            // }else{
+            //     currentSession.push(keyInfo);
+            // }
+            
+            updateLog();
+        });
+
+        function updateIndicator(){
+            indicator.textContent = `Typing Rounds: ${typingRounds}`;
+        }
+
+        function updateLog() {
+            const logDiv = document.getElementById('log');
+            logDiv.innerHTML = currentSession.map(event => 
+                `Key: ${event.key}, Type: ${event.type}, Time: ${event.time}`).join('<br>');
+        }
+
+
+        document.getElementById('download').addEventListener('click', function() {
+            const userName = nameInput.value; 
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(
+                JSON.stringify(allSessions, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", userName + "_key_events_sessions.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        });
+
+        
+        document.getElementById('retry').addEventListener('click', function() {
+            inputBox.value = ''; 
+            currentSession = []; 
+            updateLog(); 
+        });
+
+        document.getElementById('submit').addEventListener('click', function() {
+            inputBox.value = '';
+            allSessions.push({ 
+            sessionId: allSessions.length + 1, 
+            data: currentSession 
+            });
+            currentSession = [];
+            typingRounds++;
+            updateIndicator();
+            updateLog(); 
+        });
+
+        updateIndicator();
+    </script>
+</body>
+</html>
