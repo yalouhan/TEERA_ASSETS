@@ -80,6 +80,18 @@ body{
     border: 0;
     background: none;
 }
+<<<<<<< Updated upstream
+=======
+    #sign-in:hover{
+        border:2px solid #ffffff;
+    }
+
+    #sign-in{
+        border:2px solid #0500E3;
+        background-color: white;
+        color: #0500E3;
+    }
+>>>>>>> Stashed changes
 
 .underline{
     color: var(--Teera-main, #0500E3);
