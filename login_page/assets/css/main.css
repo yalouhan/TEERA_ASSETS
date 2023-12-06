@@ -1,4 +1,4 @@
-@import url(fontawesome-all.min.css);
+@import url(fontawesome.min.css);
 
 /* Basic */
 
@@ -80,6 +80,83 @@ body{
     position: relative;
 }
 
+.say-hi{
+    text-align: center;
+    color: var(--Teera-main, #0500E3);
+    text-align: center;
+    font-family: SF Pro;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 120%; /* 28.8px */
+    letter-spacing: 0.24px;
+}
+    h4{
+        margin: 0 0 10px 0;
+        color: var(--Teera-main, #0500E3);
+        text-align: center;
+        font-family: SF Pro;
+        font-size: 24px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 120%; /* 28.8px */
+        letter-spacing: 0.24px;
+    }
+
+.card{
+    width: 445px;
+    height: 283px;
+    /* flex-shrink: 0; */
+    border-radius: 10px;
+    border: 2px solid var(--Teera-highlight-1, #00F0FF);
+    background: #FFF;
+    border-radius: 10px;
+    /* border: 0px solid var(--Teera-Highlight-2, #FF09E6); */
+    /* background: #FFF; */
+    box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.08);
+}
+    header{
+        padding: 4px;
+        
+        font-family: SF Pro;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 200%;
+    }
+        div#quit{
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+        }
+        header h5{
+            color: var(--Teera-Highlight-2, #FF09E6);
+            font-size: 22px;
+            text-align: center;
+            /* letter-spacing: 0.22px; */
+            margin: 5px 0;
+        }
+        header p{
+            color: var(--Teera-Highlight-2, #FF09E6);
+            font-family: SF Pro;
+            text-align: center;
+            font-size: 12px;
+            line-height: 100%;
+            /* letter-spacing: 0.12px; */
+            margin: 2px 0;
+        }
+        .pattern{
+            width: 445px;
+            height: 157px;
+            flex-shrink: 0;
+            padding: 0;
+            margin-top: 10px;
+        }
+            img.pattern{
+                width: 100%;
+                height: auto;
+            }
+
+
 
 /* Buttons */
 
@@ -156,4 +233,8 @@ body{
             height: auto;
             cursor: pointer;
         }
+img#fake-page{
+    width: 100vw;
+    height: 100vh;
+}
 
