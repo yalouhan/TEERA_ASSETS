@@ -30,7 +30,7 @@ def analyze():
         print(f'{score}')
 
         result = False
-        if score >= (0.85 * threshold) and score <= (1.15 * threshold):
+        if score <= (0.85 * threshold) and score >= (1.15 * threshold):
             result = True
         else:
             result = False

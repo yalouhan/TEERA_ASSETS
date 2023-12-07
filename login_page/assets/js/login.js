@@ -25,7 +25,7 @@ function login(){
     })
     .then(response => response.json())
     .then(data => {
-        if(data.valid){
+        if(data){
             window.location.href = '/helloworld.html';
         }else{
             window.location.href = '/verify-false.html';

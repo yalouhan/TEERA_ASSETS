@@ -223,7 +223,7 @@ function init() {
     const zOffsets = [640, 140, 0, -300, -500];
 
     container = document.getElementById('canvas');
-    const aspect = 0.5 * (window.innerWidth / window.innerHeight);
+    const aspect = window.innerWidth / window.innerHeight;
     const d = 20;
     camera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, 0.1, 100000);
     camera.position.z = 400;
