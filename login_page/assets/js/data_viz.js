@@ -2,6 +2,9 @@ import * as THREE from 'three';
 import Stats from 'three/addons/libs/stats.module.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+
 
 class ParticleSystem {
     constructor(maxParticleCount, xOffset, yOffset, zOffset, r, group) {
@@ -31,18 +34,22 @@ class ParticleSystem {
             this.particlePositions[i * 3 + 2] = z;
 
             this.particlesData.push({
-                velocity: new THREE.Vector3(-0.02 + Math.random() * 0.04, -0.02 + Math.random() * 0.04, -0.02 + Math.random() * 0.04),
+                velocity: new THREE.Vector3(-0.125 + Math.random() * 0.25, -0.125 + Math.random() * 0.25, -0.125 + Math.random() * 0.25),
                 numConnections: 0
             });
         }
     }
 
     createParticles() {
+        const textureLoader = new THREE.TextureLoader();
+        const circleTexture = textureLoader.load('./circle.png'); // 替换为你的纹理图像路径
+
         const pMaterial = new THREE.PointsMaterial({
-            color: 0xFF09E6,
-            size: 4,
-            transparent: false,
-            sizeAttenuation: false
+            color: 0x0500E3,
+            size: 6,
+            transparent: true,
+            sizeAttenuation: true,
+            map: circleTexture
         });
 
         this.particles = new THREE.BufferGeometry();
@@ -212,20 +219,47 @@ function initGUI() {
 
 }
 
+
+
+
 function init() {
 
     initGUI();
 
     const maxParticleCount = 4;
     const r = 80;
-    const xOffsets = [220, 100, 0, -120, -240];
-    const yOffsets = [0, 80, 160, 240, 320, 400];
-    const zOffsets = [640, 140, 0, -300, -500];
+
+    // //老办法
+    // const xOffsets = [320, 160, 0, -120, -240];
+    // const yOffsets = [240, 140, 0, -120, -300];
+    // const zOffsets = [300, 150, 0, -240, -520];
+
+    //新办法
+    const positions = [
+        { x: -980, z: 20, maxParticleCounts: 5 },
+        { x: -540, z: 600, maxParticleCounts: 4 },
+        { x: -400, z: -600, maxParticleCounts: 2 },
+        { x: -40, z: 800, maxParticleCounts: 3 },
+        { x: 0, z: 0, maxParticleCounts: 4 },
+        { x: 520, z: -360, maxParticleCounts: 5 },
+        { x: 500, z: 800, maxParticleCounts: 2 },
+        { x: 1000, z: 100, maxParticleCounts: 3 }
+    ];
+
+    const yValues = [0, 80, 160, 240, 320, 400, 480];
+
+    const baseTexts = ["Text 1", "Text 2", "Text 3", "Text 4", "Text 5", "Text 6", "Text 7", "Text 8"];
 
     container = document.getElementById('container');
-    const aspect = window.innerWidth / window.innerHeight;
-    const d = 20;
-    camera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, 0.1, 100000);
+
+    // //OrthographicCamera
+    // const aspect = window.innerWidth / window.innerHeight;
+    // const d = 20;
+    // camera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, 0.1, 100000);
+
+    //PerspectiveCamera
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+
     camera.position.z = 400;
     const controls = new OrbitControls(camera, container);
 
@@ -233,12 +267,59 @@ function init() {
     group = new THREE.Group();
     scene.add(group);
 
-    xOffsets.forEach(xOffset => {
-        yOffsets.forEach(yOffset => {
-            zOffsets.forEach(zOffset => {
-                particleSystems.push(new ParticleSystem(5 * Math.random() + 2, xOffset, yOffset, zOffset, r, group));
-                boxMeshPositions.push({ xOffset, yOffset, zOffset });
-            });
+
+
+    // 创建一个平面几何体作为背景
+    const planeGeometry = new THREE.PlaneGeometry(2, 2, 1, 1);
+
+    const vertexShader = `
+    varying vec2 vUv;
+    void main() {
+        vUv = uv;
+        gl_Position = vec4(position, 1.0);
+    }
+`;
+
+    const fragmentShader = `
+    varying vec2 vUv;
+    void main() {
+        vec3 color1 = vec3(0.78, 0.2, 0.71); // #4733B5
+        vec3 color2 = vec3(0.14, 0.14, 0.914); // #E9E9E9
+        vec3 color3 = vec3(0.745, 0.2, 0.24); // #BE33B1
+        float mixRatio = smoothstep(0.0, 1.0, vUv.y);
+        vec3 color = mix(color1, color3, mixRatio);
+        color = mix(color, color2, smoothstep(0.25, 0.75, vUv.y));
+        gl_FragColor = vec4(color, 1.0);
+    }
+`;
+
+    const material = new THREE.ShaderMaterial({
+        vertexShader,
+        fragmentShader
+    });
+
+    const plane = new THREE.Mesh(planeGeometry, material);
+    plane.position.z = -1;
+    scene.add(plane);
+    plane.material.depthTest = false;
+
+
+
+
+    positions.forEach((pos, index) => {
+
+        const xOffset = pos.x;
+        const zOffset = pos.z;
+        const text = baseTexts[index] || "";
+        createBase(xOffset, -60, zOffset, group, text);
+
+        yValues.forEach(y => {
+            const xOffset = pos.x;
+            const yOffset = y;
+            const zOffset = pos.z;
+            const maxParticleCount = pos.maxParticleCounts
+            particleSystems.push(new ParticleSystem(maxParticleCount, xOffset, yOffset, zOffset, r, group));
+            boxMeshPositions.push({ xOffset, yOffset, zOffset });
         });
     });
 
@@ -247,7 +328,7 @@ function init() {
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0xFFFFFF, 1);
+    renderer.setClearColor(0x000000, 1);
     container.appendChild(renderer.domElement);
 
     stats = new Stats();
@@ -271,89 +352,88 @@ function checkDistanceAndCreateLine() {
     });
 
     boxMeshPositions.forEach((positionA, i) => {
-        for (let j = i + 1; j < boxMeshPositions.length; j++) {
-            const positionB = boxMeshPositions[j];
-            const dx = positionA.xOffset - positionB.xOffset;
-            const dy = positionA.yOffset - positionB.yOffset;
-            const dz = positionA.zOffset - positionB.zOffset;
-            const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        boxMeshPositions.forEach((positionB, j) => {
+            if (i !== j) {
+                const dx = positionA.xOffset - positionB.xOffset;
+                const dy = positionA.yOffset - positionB.yOffset;
+                const dz = positionA.zOffset - positionB.zOffset;
+                const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-            if (distance < threshold) {
-                createLine(positionA, positionB);
+                if (distance < threshold) {
+                    createLine(positionA, positionB);
+                }
             }
-        }
+        });
     });
 }
 
-function createLine(positionA, positionB) {
-    // 创建曲线的控制点
-    const midPoint = new THREE.Vector3(
-        (positionA.xOffset + positionB.xOffset) / 2,
-        (positionA.yOffset + positionB.yOffset) / 2,
-        (positionA.zOffset + positionB.zOffset) / 2
-    ).add(new THREE.Vector3(Math.random() * 10 - 5, Math.random() * 10 - 5, Math.random() * 10 - 5));
 
-    // 使用 CatmullRomCurve3 创建平滑曲线
-    const curve = new THREE.CatmullRomCurve3([
+function createLine(positionA, positionB) {
+    const material = new THREE.LineBasicMaterial({ color: 0xE30000, transparent: true, opacity: 0.6 });
+    const geometry = new THREE.BufferGeometry().setFromPoints([
         new THREE.Vector3(positionA.xOffset, positionA.yOffset, positionA.zOffset),
-        midPoint,
         new THREE.Vector3(positionB.xOffset, positionB.yOffset, positionB.zOffset)
     ]);
-
-    // 创建曲线的几何形状
-    const geometry = new THREE.BufferGeometry().setFromPoints(curve.getPoints(50));
-    const material = new THREE.LineBasicMaterial({
-        color: 0x0500E3,
-        transparent: true,
-        opacity: 0.4,
-        linewidth: 5
-    });
-
     const line = new THREE.Line(geometry, material);
-
-    // 动画效果
-    line.userData = { curve: curve, midPoint: midPoint, originalMidPoint: midPoint.clone() };
-
     scene.add(line);
 }
 
+const vertexShader = `
+    void main() {
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+`;
+
+const fragmentShader = `
+    uniform float time;
+    void main() {
+        vec3 color = vec3(sin(time) * 0.5 + 0.5, cos(time) * 0.5 + 0.5, 1.0);
+        gl_FragColor = vec4(color, 1.0);
+    }
+`;
+
+function createBase(x, y, z, group, text) {
+    const geometry = new THREE.BoxGeometry(140, 20, 140);
+    const material = new THREE.ShaderMaterial({
+        uniforms: {
+            time: { value: 0 }
+        },
+        vertexShader: vertexShader,
+        fragmentShader: fragmentShader
+    });
+    const base = new THREE.Mesh(geometry, material);
+    base.position.set(x, y, z);
+    group.add(base);
+    const fontLoader = new FontLoader();
+    fontLoader.load('./Roboto.json', function (font) {
+        const textGeometry = new TextGeometry(text, {
+            font: font,
+            size: 60,
+            height: 2,
+        });
+
+        const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+
+        textMesh.position.set(x, y + 25, z);
+        textMesh.rotation.x = 0;
+        group.add(textMesh);
+    });
+}
+
+
 function animate() {
     requestAnimationFrame(animate);
-
-    // 更新线条以模拟飘动的效果
-    scene.children.forEach(child => {
-        if (child.userData && child.userData.curve) {
-            const midPoint = child.userData.midPoint;
-            const originalMidPoint = child.userData.originalMidPoint;
-
-            midPoint.x += (Math.random() - 0.5) * 0.1;
-            midPoint.y += (Math.random() - 0.5) * 0.1;
-            midPoint.z += (Math.random() - 0.5) * 0.1;
-
-            // 限制中点的移动范围
-            if (midPoint.distanceTo(originalMidPoint) > 10) {
-                midPoint.copy(originalMidPoint);
-            }
-
-            const newCurve = new THREE.CatmullRomCurve3([
-                child.userData.curve.points[0],
-                midPoint,
-                child.userData.curve.points[2]
-            ]);
-
-            child.geometry.setFromPoints(newCurve.getPoints(50));
-        }
-    });
-
-
     particleSystems.forEach(system => system.update(effectController.minDistance));
     render();
     stats.update();
 }
 
+
 function render() {
     renderer.render(scene, camera);
 }
+
 
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
