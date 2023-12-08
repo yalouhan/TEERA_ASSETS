@@ -53,6 +53,7 @@ body{
             font-weight: 400;
             line-height: 120%; /* 16.8px */
             letter-spacing: -0.14px;
+            caret-color: transparent;
         }
             ::placeholder {
                 color: #c8c8c8;
@@ -242,3 +243,17 @@ img#fake-page{
     height: 100vh;
 }
 
+button#back{
+    position: absolute;
+    left: 0;
+    top: calc(100vh - 264px);
+    width: 360px;
+    height: 264px;
+    border: none;
+    color: white;
+    background: none;
+}
+
+div.back a{
+    color: white;
+}
