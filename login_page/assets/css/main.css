@@ -53,7 +53,7 @@ body{
             font-weight: 400;
             line-height: 120%; /* 16.8px */
             letter-spacing: -0.14px;
-            caret-color: transparent;
+            /* caret-color: transparent; */
         }
             ::placeholder {
                 color: #c8c8c8;

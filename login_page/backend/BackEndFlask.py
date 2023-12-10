@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 from hmmlearn import hmm
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import NearestNeighbors
 from joblib import load
 import json
 import numpy as np
@@ -13,24 +15,40 @@ def analyze():
         json_data = request.json
         analyzer = KeyStrokeAnalyzer()
 
-        template_data = load_template_json('backend/tem_data/haoyu wang_key_events_sessions.json')
-        tem_scores = []
-        for data in template_data:
-            tem_features = analyzer.feature_extracting(data)
-            cleaned_tem_features = analyzer.feature_cleaning(tem_features)
-            # print(f'{cleaned_tem_features}')
-            tem_scores.append(analyzer.score_computing(cleaned_tem_features))
+        temp_data = load_template_json('backend/tem_data/Haoyu Wang_key_events_sessions (5).json')
+        temp_data_2 = load_template_json('backend/tem_data/haoyu wang_key_events_sessions.json')
+        for data in temp_data_2:
+            temp_data.append(data)
+        scaler = StandardScaler()
+        clear_data_np = []
+        for data in temp_data:
+            data_np = analyzer.feature_cleaning(analyzer.feature_extracting(data))
+            clear_data_np.append(data_np)
+        window_size = 12
+        step = 1
+        all_data = []
+        for sequence in clear_data_np:
+            sequence = scaler.fit_transform(sequence)
+            windows = analyzer.sliding_window(sequence, window_size, 1)
+            # print(f'{windows}')
+            all_data.append(windows)
 
-        threshold = np.median(tem_scores)
+        threshold = analyzer.calculate_threshold(model, all_data)
+        log_likelihoods_train_np = np.array(threshold).reshape(-1, 1)
             
         subject_data = analyzer.load_json(json_data)
         features = analyzer.feature_extracting(subject_data)
         cleaned_features = analyzer.feature_cleaning(features)
-        score = analyzer.score_computing(cleaned_features)
+        if len(cleaned_features) >= 24 :
+            windows = analyzer.sliding_window(cleaned_features, window_size, step)
+            # print(f'{pre_process.check_dimensions(processed_data)}')
+        score = analyzer.score_computing(windows)
         print(f'{score}')
 
         result = False
-        if score <= (0.85 * threshold) and score >= (1.15 * threshold):
+        median, std = knn_judge(int(0.05*len(all_data)), score, log_likelihoods_train_np)
+        print(f'{median}, {std}')
+        if score <= median+std and score >= median-std:
             result = True
         else:
             result = False
@@ -50,7 +68,12 @@ def analyze():
         threshold = np.median(tem_scores)
         return jsonify(threshold)
 
-model = load('backend/model1204.joblib')
+model = load('backend/HMMkNN.joblib')
+def knn_judge(k, score, log_likelihoods_train_np):
+    nbrs = NearestNeighbors(n_neighbors=k, algorithm='auto').fit(log_likelihoods_train_np)
+    distance, indices = nbrs.kneighbors([[score]])
+    
+    return np.median(log_likelihoods_train_np[indices]), np.std(log_likelihoods_train_np[indices])
 def load_template_json(json_path):
     with open (json_path, 'r') as file:
         key_sequences = json.load(file)
@@ -133,25 +156,38 @@ class KeyStrokeAnalyzer:
             event = keystroke['event']
             if event == 'keydown':
                 HL, PL, IL, RL = self.feature_computing(i, keystrokes)
-                # feature = [self.get_keycode(key), HL, PL, IL, RL]
-                feature = [HL, PL, IL, RL]
+                feature = [self.get_keycode(key), HL, PL, IL, RL]
+                # feature = [HL, PL, IL, RL]
                 featureVectors.append(feature)
             else:
                 continue
         return featureVectors
     def feature_cleaning(self, feature_sequence):
-        cleaned_features = [[float(i) for i in features] for features in feature_sequence[:-1] if features[0] != None]
+        cleaned_features = [[float(i) for i in features] for features in feature_sequence if features[0] != None and features[0] != 8]
         if cleaned_features:
-            return cleaned_features
+            return np.array(cleaned_features)
         else:
             return None
-    def score_computing(self, cleaned_features):
-        cleaned_features_np = np.array(cleaned_features)
-
-        log_likelihood = model.score(cleaned_features_np)
+    def score_computing(self, cleaned_features_np):
+        scaler = StandardScaler()
+        log_likelihood = model.score(scaler.fit_transform(cleaned_features_np))
         score = log_likelihood
         # mean = sum(i for i in score) / len(score)
         return score
-
+    def sliding_window(self, feature_sequence, window_size, step):
+        windows = []
+        for i in range(0, len(feature_sequence) - window_size + 1, step):
+            window = feature_sequence[i:i+window_size]
+            windows.append(window.ravel())
+        return windows
+    def calculate_threshold(self, model, data):
+        thresholds = []
+        log_likelihoods = [model.score(sequence) for sequence in data if len(sequence)>0]
+        for log_likelyhood in log_likelihoods:
+            if log_likelyhood > (0.85 * min(log_likelihoods)) and log_likelyhood < (1.15 * max(log_likelihoods)):
+                thresholds.append(log_likelyhood)
+            else:
+                continue
+        return thresholds if thresholds else float('nan')
 if __name__ == '__main__' :
     app.run(debug=True)
