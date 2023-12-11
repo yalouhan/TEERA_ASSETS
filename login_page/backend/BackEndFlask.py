@@ -46,9 +46,10 @@ def analyze():
         print(f'{score}')
 
         result = False
-        median, std = knn_judge(int(0.075*len(all_data)), score, log_likelihoods_train_np)
+        k = int(0.075*len(all_data))
+        median, std = knn_judge(k, score, log_likelihoods_train_np)
         print(f'{median}, {std}')
-        if score <= median+(std/2) and score >= median-(std/2):
+        if score <= median+(std/k) and score >= median-(std/k):
             result = True
         else:
             result = False
