@@ -1,16 +1,16 @@
 let currentSession = [];
 export function initLogin(){
-    // document.querySelector('#teera').addEventListener('click', event => {
-    //     event.preventDefault();
-    //     login();
-    //     const inputBox = document.getElementById('account');
-    //     inputBox.value = '';
-    // });
-    document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(function() {
-            window.location.href = 'helloworld.html'; }, 15000); 
-            login();
+    document.querySelector('#teera').addEventListener('click', event => {
+        event.preventDefault();
+        login();
+        const inputBox = document.getElementById('account');
+        inputBox.value = '';
     });
+    // document.addEventListener('DOMContentLoaded', function() {
+    //     setTimeout(function() {
+    //         login();}, 15000); 
+            
+    // });
 }
 
 function login(){
@@ -32,7 +32,7 @@ function login(){
     .then(data => {
         if(data){
             console.log(data);
-            window.location.href = '/helloworld.html';
+            window.location.href = '/verify.html';
         }else{
             console.log(data);
             window.location.href = '/verify-false.html';

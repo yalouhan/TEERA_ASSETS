@@ -9,36 +9,30 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
         <link rel="stylesheet" href="assets/css/main.css">
     </head>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                window.location.href = 'notAuthoriaed.html'; }, 3000); 
+        });
+    </script>
+    
 
     <body class="pre-load">
         <div class="container">
-            <div class="logo">
-                <img id="logo" src="images/MAIL.svg" />
+            <div id="canvas">
+                <video id="pattern" autoplay src="Chain verification.mp4" type="video/mp4"></video>
+                <script>
+                    let video = document.getElementById("pattern");
+                    video.playbackRate = 100.0;
+                </script>
             </div>
-            <div class="info">
-                <div class="say-hi">
-                    <h4>
-                        
-                    </h4>
-                </div>
-                <div id="FALSE" class="card">
-                    <article class="info">
-                        <header class="operator">
-                            <div id="quit">
-                                <a id="quit" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                    <path d="M4.08859 4.21569L4.14645 4.14645C4.32001 3.97288 4.58944 3.9536 4.78431 4.08859L4.85355 4.14645L10 9.293L15.1464 4.14645C15.32 3.97288 15.5894 3.9536 15.7843 4.08859L15.8536 4.14645C16.0271 4.32001 16.0464 4.58944 15.9114 4.78431L15.8536 4.85355L10.707 10L15.8536 15.1464C16.0271 15.32 16.0464 15.5894 15.9114 15.7843L15.8536 15.8536C15.68 16.0271 15.4106 16.0464 15.2157 15.9114L15.1464 15.8536L10 10.707L4.85355 15.8536C4.67999 16.0271 4.41056 16.0464 4.21569 15.9114L4.14645 15.8536C3.97288 15.68 3.9536 15.4106 4.08859 15.2157L4.14645 15.1464L9.293 10L4.14645 4.85355C3.97288 4.67999 3.9536 4.41056 4.08859 4.21569Z" fill="#FF09E6"/>
-                                  </svg></a>
-                            </div>
-                            <h5>You’re not the person you claim to be</h5>
-                            <p>Nice try though...</p>
-                        </header>
-                        <div class="pattern" id="True">
-                            <img class="pattern" src="images/pattern.svg" alt="pattern_passed">
-                        </div>
-                    </article>
-                </div>
+            <!-- <script type="module" src="assets/js/data_viz.js"></scrip> -->
+            <div id="teera-button">
+                <button id="teera">
+                    <img src="images/Teera logo_1.gif" alt="teera-button">
+                </button>
             </div>
-            <button id="teera"><img src="images/Teera logo_1.gif"></button>
         </div>       
     </body>
+    <script type="module" src="assets/js/login.js"></script>
 </html>
