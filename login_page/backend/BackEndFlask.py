@@ -43,14 +43,19 @@ def analyze():
             windows = analyzer.sliding_window(cleaned_features, window_size, step)
             # print(f'{pre_process.check_dimensions(processed_data)}')
         score = analyzer.score_computing(windows)
-        print(f'{score}')
-
-        result = False
         k = int(0.075*len(all_data))
+        
+        result = False
         median, std = knn_judge(k, score, log_likelihoods_train_np)
-        print(f'{median}, {std}')
-        if score <= median+(std/k) and score >= median-(std/k):
-            result = True
+        print(f'{k}, {median}, {std}')
+        print(f'{score}')
+        floating_band = std / 2
+        print(f'{median+floating_band}, {median-floating_band}')
+        if std <= 75:
+            if score <= median+floating_band and score >= median-floating_band:
+                result = True
+            else:
+                result = False
         else:
             result = False
 

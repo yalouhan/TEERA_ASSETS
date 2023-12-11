@@ -19,8 +19,14 @@
 
     <body class="pre-load">
         <div class="container">
-            <div id="canvas"></div>
-            <script type="module" src="assets/js/data_viz.js"></script>
+            <div id="canvas">
+                <video id="pattern" autoplay src="Chain verification.mp4" type="video/mp4"></video>
+                <script>
+                    let video = document.getElementById("pattern");
+                    video.playbackRate = 100.0;
+                </script>
+            </div>
+            <!-- <script type="module" src="assets/js/data_viz.js"></scrip> -->
             <div id="teera-button">
                 <button id="teera">
                     <img src="images/Teera logo_1.gif" alt="teera-button">

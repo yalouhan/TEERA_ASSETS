@@ -74,12 +74,18 @@ body{
     }
 
 #canvas {
-    position: relative;
-    width: 400px;
-    height: 280px;
-    transform: translate(-50%, -50%);
-    border: 1px solid var(--Teera-main,  #0500E3); 
+    position: absolute;
+    top: 0;
+    justify-content: center;
+    width: 100%;
+    height: calc(100vh - 200px);
+    /* transform: translate(-50%, -50%); */
+    /* border: 1px solid var(--Teera-main,  #0500E3);  */
 }
+    video{
+        width: 100%;
+        height: calc(100vh - 200px);
+    }
 
 .say-hi{
     text-align: center;
