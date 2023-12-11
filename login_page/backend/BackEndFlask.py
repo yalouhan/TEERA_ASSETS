@@ -16,9 +16,9 @@ def analyze():
         analyzer = KeyStrokeAnalyzer()
 
         temp_data = load_template_json('backend/tem_data/Haoyu Wang_key_events_sessions (5).json')
-        temp_data_2 = load_template_json('backend/tem_data/haoyu wang_key_events_sessions.json')
-        for data in temp_data_2:
-            temp_data.append(data)
+        # temp_data_2 = load_template_json('backend/tem_data/haoyu wang_key_events_sessions.json')
+        # for data in temp_data_2:
+        #     temp_data.append(data)
         scaler = StandardScaler()
         clear_data_np = []
         for data in temp_data:
@@ -43,7 +43,7 @@ def analyze():
             windows = analyzer.sliding_window(cleaned_features, window_size, step)
             # print(f'{pre_process.check_dimensions(processed_data)}')
         score = analyzer.score_computing(windows)
-        k = int(0.05*len(all_data))
+        k = int(0.075*len(all_data))
         result = False
         median, std = knn_judge(k, score, log_likelihoods_train_np)
         print(f'{k}, {median}, {std}')
