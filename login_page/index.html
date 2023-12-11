@@ -25,8 +25,16 @@
                     <button id="newAccount" class="underline" >Creat account</button>
                 </div>
                 <button id="teera"><img src="images/Teera logo.svg"></button>
+                <script>
+                    document.querySelector('#teera').addEventListener('click', event => {
+                        event.preventDefault();
+                        const inputBox = document.getElementById('account');
+                        inputBox.value = '';
+                        window.location.href = '/verify.html';
+                    });
+                </script>
             </div>
         </div>
-        <script type="module" src="assets/js/login.js"></script>
+        <!-- <script type="module" src="assets/js/login.js"></script> -->
     </body>
 </html>

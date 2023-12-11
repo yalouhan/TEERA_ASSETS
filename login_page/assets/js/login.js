@@ -1,10 +1,15 @@
 let currentSession = [];
 export function initLogin(){
-    document.querySelector('#teera').addEventListener('click', event => {
-        event.preventDefault();
-        login();
-        const inputBox = document.getElementById('account');
-        inputBox.value = '';
+    // document.querySelector('#teera').addEventListener('click', event => {
+    //     event.preventDefault();
+    //     login();
+    //     const inputBox = document.getElementById('account');
+    //     inputBox.value = '';
+    // });
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+            window.location.href = 'helloworld.html'; }, 15000); 
+            login();
     });
 }
 
