@@ -1,9 +1,10 @@
 let currentSession = [];
+const inputBox = document.getElementById('account');
 export function initLogin(){
     document.querySelector('#teera').addEventListener('click', event => {
         event.preventDefault();
         login();
-        const inputBox = document.getElementById('account');
+        
         inputBox.value = '';
     });
     // document.addEventListener('DOMContentLoaded', function() {
@@ -30,7 +31,7 @@ function login(){
     })
     .then(response => response.json())
     .then(data => {
-        if(data){
+        if(data && inputBox.value=='The quick brown fox, jumps over the lazy dog.'){
             console.log(data);
             window.location.href = '/verify.html';
         }else{
@@ -41,6 +42,7 @@ function login(){
     .catch((error) => {
         console.error('Error:', error);
     });
+
 }
 
 function initCollectKeystrokes(){
