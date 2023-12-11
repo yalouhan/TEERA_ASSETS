@@ -43,8 +43,7 @@ def analyze():
             windows = analyzer.sliding_window(cleaned_features, window_size, step)
             # print(f'{pre_process.check_dimensions(processed_data)}')
         score = analyzer.score_computing(windows)
-        k = int(0.075*len(all_data))
-        
+        k = int(0.05*len(all_data))
         result = False
         median, std = knn_judge(k, score, log_likelihoods_train_np)
         print(f'{k}, {median}, {std}')
