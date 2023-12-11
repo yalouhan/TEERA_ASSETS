@@ -48,7 +48,7 @@ def analyze():
         median, std = knn_judge(k, score, log_likelihoods_train_np)
         print(f'{k}, {median}, {std}')
         print(f'{score}')
-        floating_band = std / 2
+        floating_band = std
         print(f'{median+floating_band}, {median-floating_band}')
         if std <= 75:
             if score <= median+floating_band and score >= median-floating_band:
