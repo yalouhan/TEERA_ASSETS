@@ -50,28 +50,53 @@ def analyze():
         print(f'{score}')
         floating_band = std
         print(f'{median+floating_band}, {median-floating_band}')
-        if std <= 75:
+        if std <= 60:
             if score <= median+floating_band and score >= median-floating_band:
                 result = True
+                print(f'passed!')
             else:
                 result = False
+                print(f'Exceeded the threshold')
         else:
             result = False
+            print(f'STD too large')
 
         return jsonify(result)
     elif request.method == 'GET':
         analyzer = KeyStrokeAnalyzer()
 
-        template_data = load_template_json('backend/tem_data/haoyu wang_key_events_sessions.json')
-        tem_scores = []
-        for data in template_data:
-            tem_features = analyzer.feature_extracting(data)
-            cleaned_tem_features = analyzer.feature_cleaning(tem_features)
-            # print(f'{cleaned_tem_features}')
-            tem_scores.append(analyzer.score_computing(cleaned_tem_features))
+        temp_data = load_template_json('backend/tem_data/Haoyu Wang_key_events_sessions (5).json')
+        # temp_data_2 = load_template_json('backend/tem_data/haoyu wang_key_events_sessions.json')
+        # for data in temp_data_2:
+        #     temp_data.append(data)
+        scaler = StandardScaler()
+        clear_data_np = []
+        for data in temp_data:
+            data_np = analyzer.feature_cleaning(analyzer.feature_extracting(data))
+            clear_data_np.append(data_np)
+        window_size = 18
+        step = 1
+        all_data = []
+        for sequence in clear_data_np:
+            sequence = scaler.fit_transform(sequence)
+            windows = analyzer.sliding_window(sequence, window_size, 1)
+            # print(f'{windows}')
+            all_data.append(windows)
 
-        threshold = np.median(tem_scores)
-        return jsonify(threshold)
+        threshold = analyzer.calculate_threshold(model, all_data)
+        log_likelihoods_train_np = np.array(threshold).reshape(-1, 1)
+            
+        subject_data = analyzer.load_json(json_data)
+        features = analyzer.feature_extracting(subject_data)
+        cleaned_features = analyzer.feature_cleaning(features)
+        if len(cleaned_features) >= 24 :
+            windows = analyzer.sliding_window(cleaned_features, window_size, step)
+            # print(f'{pre_process.check_dimensions(processed_data)}')
+        score = analyzer.score_computing(windows)
+        k = int(0.075*len(all_data))
+        result = False
+        median, std = knn_judge(k, score, log_likelihoods_train_np)
+        return jsonify(k, median, std, score)
 
 model = load('backend/HMMkNN.joblib')
 def knn_judge(k, score, log_likelihoods_train_np):

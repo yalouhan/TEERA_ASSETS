@@ -3,8 +3,12 @@ const inputBox = document.getElementById('account');
 export function initLogin(){
     document.querySelector('#teera').addEventListener('click', event => {
         event.preventDefault();
-        login();
-        
+        console.log(inputBox.value)
+        if(inputBox.value == 'The quick brown fox, jumps over the lazy dog.'){
+            login();
+        }else{
+            window.location.href('/verify-false.html');
+        }
         inputBox.value = '';
     });
     // document.addEventListener('DOMContentLoaded', function() {
@@ -31,7 +35,14 @@ function login(){
     })
     .then(response => response.json())
     .then(data => {
-        if(data && inputBox.value=='The quick brown fox, jumps over the lazy dog.'){
+        // console.log("Response Data:", data);
+        // if (inputBox.value == 'The quick brown fox, jumps over the lazy dog.'){
+        //     console.log("Input: ture")
+        // }else{
+        //     console.log("Input: Error")
+        // }
+        // console.log("Input Box Value:", inputBox.value);
+        if(data){
             console.log(data);
             window.location.href = '/verify.html';
         }else{
