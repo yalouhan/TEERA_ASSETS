@@ -6,6 +6,8 @@ from sklearn.neighbors import NearestNeighbors
 from joblib import load
 import json
 import numpy as np
+import time
+import serial
 
 app = Flask(__name__)
 CORS(app)
@@ -39,6 +41,7 @@ def analyze():
         subject_data = analyzer.load_json(json_data)
         features = analyzer.feature_extracting(subject_data)
         cleaned_features = analyzer.feature_cleaning(features)
+        Arduino_Comm('/dev/cu.usbmodem1401', 9600, cleaned_features)
         if len(cleaned_features) >= 24 :
             windows = analyzer.sliding_window(cleaned_features, window_size, step)
             # print(f'{pre_process.check_dimensions(processed_data)}')
@@ -97,6 +100,20 @@ def analyze():
         result = False
         median, std = knn_judge(k, score, log_likelihoods_train_np)
         return jsonify(k, median, std, score)
+
+def Arduino_Comm(ip, port, cleaned_feature):
+    ser = serial.Serial(ip, port, timeout=1)
+    for index, item in enumerate(cleaned_feature):
+        if index == len(cleaned_feature) - 1:
+            send_str = f"{item[0]},{item[1]},{item[2]},{item[3]},{item[4]}.\n"
+        else:
+            send_str = f"{item[0]},{item[1]},{item[2]},{item[3]},{item[4]};\n"
+        print("Sending data: " + send_str)
+        ser.write(send_str.encode())
+        print("Data sent")
+        time.sleep(1)
+
+    ser.close()
 
 model = load('backend/HMMkNN.joblib')
 def knn_judge(k, score, log_likelihoods_train_np):
