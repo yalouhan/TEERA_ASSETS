@@ -42,9 +42,9 @@ def analyze():
         subject_data = analyzer.load_json(json_data)
         features = analyzer.feature_extracting(subject_data)
         cleaned_features = analyzer.feature_cleaning(features)
-        # Arduino_Comm('/dev/cu.usbmodem1401', 9600, cleaned_features)
-        arduino_thread = threading.Thread(target=Arduino_Comm, args=('/dev/cu.usbmodem1401', 9600, cleaned_features))
-        arduino_thread.start()
+        
+        # arduino_thread = threading.Thread(target=Arduino_Comm, args=('/dev/cu.usbmodem1401', 9600, cleaned_features))
+        # arduino_thread.start()
         if len(cleaned_features) >= 24 :
             windows = analyzer.sliding_window(cleaned_features, window_size, step)
             # print(f'{pre_process.check_dimensions(processed_data)}')
@@ -68,6 +68,7 @@ def analyze():
             print(f'STD too large')
 
         return jsonify(result)
+        Arduino_Comm('/dev/cu.usbmodem1401', 9600, cleaned_features)
     elif request.method == 'GET':
         analyzer = KeyStrokeAnalyzer()
 

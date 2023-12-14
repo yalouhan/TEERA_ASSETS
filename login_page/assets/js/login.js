@@ -3,11 +3,11 @@ const inputBox = document.getElementById('account');
 export function initLogin(){
     document.querySelector('#teera').addEventListener('click', event => {
         event.preventDefault();
-        console.log(inputBox.value)
+        console.log(inputBox.value);
         if(inputBox.value == 'The quick brown fox, jumps over the lazy dog.'){
             login();
         }else{
-            window.location.href('/verify-false.html');
+            window.location.href = '/verify-false.html';
         }
         inputBox.value = '';
     });
