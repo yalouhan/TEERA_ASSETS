@@ -8,6 +8,7 @@ import json
 import numpy as np
 import time
 import serial
+import threading
 
 app = Flask(__name__)
 CORS(app)
@@ -41,7 +42,9 @@ def analyze():
         subject_data = analyzer.load_json(json_data)
         features = analyzer.feature_extracting(subject_data)
         cleaned_features = analyzer.feature_cleaning(features)
-        Arduino_Comm('/dev/cu.usbmodem1401', 9600, cleaned_features)
+        # Arduino_Comm('/dev/cu.usbmodem1401', 9600, cleaned_features)
+        arduino_thread = threading.Thread(target=Arduino_Comm, args=('/dev/cu.usbmodem1401', 9600, cleaned_features))
+        arduino_thread.start()
         if len(cleaned_features) >= 24 :
             windows = analyzer.sliding_window(cleaned_features, window_size, step)
             # print(f'{pre_process.check_dimensions(processed_data)}')
@@ -115,7 +118,7 @@ def Arduino_Comm(ip, port, cleaned_feature):
 
     ser.close()
 
-model = load('backend/HMMkNN.joblib')
+model = load('backend/HMMkNNbetter.joblib')
 def knn_judge(k, score, log_likelihoods_train_np):
     nbrs = NearestNeighbors(n_neighbors=k, algorithm='auto').fit(log_likelihoods_train_np)
     distance, indices = nbrs.kneighbors([[score]])
